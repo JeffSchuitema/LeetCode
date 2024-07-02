@@ -1,56 +1,86 @@
+//Approach 1: Merge and Sort
+//Create a new array with a size equal to the total number of elements in both input arrays.
+//Insert elements from both input arrays into the new array.
+//Sort the new array.
+//Find and return the median of the sorted array.
+//Time Complexity
+
+//In the worst case TC is O((n + m) * log(n + m)).
+//Space Complexity
+
+//O(n + m), where ‘n’ and ‘m’ are the sizes of the arrays.
+
+
+//Approach 2: Two-Pointer Method
+//Initialize two pointers, i and j, both initially set to 0.
+//Move the pointer that corresponds to the smaller value forward at each step.
+//Continue moving the pointers until you have processed half of the total number of elements.
+//Calculate and return the median based on the values pointed to by i and j.
+//Time Complexity
+
+//O(n + m), where ‘n’ & ‘m’ are the sizes of the two arrays.
+//Space Complexity
+
+//O(1).
+
+
+//Approach 3: Binary Search
+//Use binary search to partition the smaller of the two input arrays into two parts.
+//Find the partition of the larger array such that the sum of elements on the left side of the partition in both arrays is half of the total elements.
+//Check if this partition is valid by verifying if the largest number on the left side is smaller than the smallest number on the right side.
+//If the partition is valid, calculate and return the median.
+//Time Complexity
+
+//O(logm/logn)
+//Space Complexity
+
+//O(1)
+
+
 class Solution {
-    public double findMedianSortedArrays(int[] nums1, int[] nums2) {
-        double n = nums1.length;
-        double m = nums2.length;
-        // Current index of input array ar1[]
-        int i = 0;
-
-        // Current index of input array ar2[]
-        int j = 0;
-        int count;
-        double m1 = -1, m2 = -1;
-
-        // Since there are (n+m) elements,
-        // There are following two cases
-        // if n+m is odd then the middle
-        // index is median i.e. (m+n)/2
-        if ((m + n) % 2 == 1) {
-            for (count = 0; count <= (n + m) / 2; count++) {
-                if (i != n && j != m) {
-                    m1 = (nums1[i] > nums2[j]) ? nums2[j++]
-                            : nums1[i++];
-                } else if (i < n) {
-                    m1 = nums2[i++];
-                }
-
-                // for case when j<m,
-                else {
-                    m1 = nums2[j++];
-                }
+        public double findMedianSortedArrays(int[] nums1, int[] nums2) {
+        int n1 = nums1.length, n2 = nums2.length;
+        
+        // Ensure nums1 is the smaller array for simplicity
+        if (n1 > n2)
+            return findMedianSortedArrays(nums2, nums1);
+        
+        int n = n1 + n2;
+        int left = (n1 + n2 + 1) / 2; // Calculate the left partition size
+        int low = 0, high = n1;
+        
+        while (low <= high) {
+            int mid1 = (low + high) >> 1; // Calculate mid index for nums1
+            int mid2 = left - mid1; // Calculate mid index for nums2
+            
+            int l1 = Integer.MIN_VALUE, l2 = Integer.MIN_VALUE, r1 = Integer.MAX_VALUE, r2 = Integer.MAX_VALUE;
+            
+            // Determine values of l1, l2, r1, and r2
+            if (mid1 < n1)
+                r1 = nums1[mid1];
+            if (mid2 < n2)
+                r2 = nums2[mid2];
+            if (mid1 - 1 >= 0)
+                l1 = nums1[mid1 - 1];
+            if (mid2 - 1 >= 0)
+                l2 = nums2[mid2 - 1];
+            
+            if (l1 <= r2 && l2 <= r1) {
+                // The partition is correct, we found the median
+                if (n % 2 == 1)
+                    return Math.max(l1, l2);
+                else
+                    return ((double)(Math.max(l1, l2) + Math.min(r1, r2))) / 2.0;
             }
-            return m1;
-        }
-
-        // median will be average of elements
-        // at index ((m+n)/2 - 1) and (m+n)/2
-        // in the array obtained after merging
-        // ar1 and ar2
-        else {
-            for (count = 0; count <= (n + m) / 2; count++) {
-                m2 = m1;
-                if (i != n && j != m) {
-                    m1 = (nums1[i] > nums2[j]) ? nums2[j++]
-                            : nums1[i++];
-                } else if (i < n) {
-                    m1 = nums1[i++];
-                }
-
-                // for case when j<m,
-                else {
-                    m1 = nums2[j++];
-                }
+            else if (l1 > r2) {
+                // Move towards the left side of nums1
+                high = mid1 - 1;
             }
-            return (double)((m1 + m2) / 2);
+            else {
+                // Move towards the right side of nums1
+                low = mid1 + 1;
+            }
         }
+        return 0; // If the code reaches here, the input arrays were not sorted.
     }
 }
